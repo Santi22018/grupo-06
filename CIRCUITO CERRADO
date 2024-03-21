@@ -1,0 +1,87 @@
+#include <DHT.h>
+
+
+
+#include <DHT_U.h>
+
+
+
+
+#include "DHT.h"
+
+
+
+String str;
+
+
+float ePUT, uPOT;
+
+
+float wSFLOAT;
+
+#define DHTPIN 5    //ESTE PIN VA CONECTADO AL SENSOR
+
+#define DHTTYPE DHT11   
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200); //ES LA SEÑAL QUE USAMOS EN EL MONITOR SERIE
+  Serial.println(F("DHTxx test!"));
+
+  dht.begin();
+  
+  pinMode(D3, OUTPUT); //LED VERDE
+  pinMode(D2, OUTPUT); //LED ROJO
+  pinMode(A0, INPUT); //FOTORRESISTENCIA
+}
+
+void loop() {
+  delay(500);
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+
+  float hif = dht.computeHeatIndex(f, h);
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  if (Serial.available() > 0) {
+    wSFLOAT = Serial.parseFloat(); // Cambiado de parseInt a parseFloat
+    str = Serial.readStringUntil('\n');
+  }
+
+  ePUT = wSFLOAT - t;
+  uPOT = 30 * ePUT; //se utiliza esta condicion para aumentar o disminuir la intensidad del led
+
+  
+ if (ePUT<0){
+  analogWrite (D3,0);
+  analogWrite (D2,-uPOT);
+ }
+ else 
+ {
+   analogWrite(D2,0);
+   analogWrite (D3,uPOT);
+ }
+  int sensorValue = map(analogRead(A0), 14, 918, 0 , 650);
+  float voltajeRecibido = sensorValue;
+
+
+
+  Serial.print("lumenesRecibidos:");
+  Serial.print(voltajeRecibido);
+  Serial.print("TemperaturaRecibida:");
+  Serial.print(t);
+  Serial.print("°C ");
+  Serial.print("humedadRecibida:");
+  Serial.println(f);
+  
+
+  
+} 
