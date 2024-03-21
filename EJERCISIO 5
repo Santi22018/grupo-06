@@ -1,0 +1,70 @@
+const int pinRojo = D3;
+const int pinAmarillo = D1;
+const int pinVerde = D2;
+const int pinParo = D7;
+const int pinMantenimiento = D6;
+const int pinPotenciometro = A0; // Pin del potenciómetro
+int A, B;
+int velocidadCambio = 500; // Velocidad inicial
+
+bool mantenimientoActivo = false;
+bool amarilloEncendido = false;
+bool emergenciaActiva = false;
+
+void setup() {
+  pinMode(pinRojo, OUTPUT);
+  pinMode(pinAmarillo, OUTPUT);
+  pinMode(pinVerde, OUTPUT);
+  pinMode(pinParo, INPUT);
+  pinMode(pinMantenimiento, INPUT);
+}
+
+void loop() {
+  A = digitalRead(pinParo);
+  B = digitalRead(pinMantenimiento);
+
+  // Lectura del valor del potenciómetro
+  int valorPotenciometro = analogRead(pinPotenciometro);
+  // Mapeo del valor del potenciómetro a un rango de velocidad
+  velocidadCambio = map(valorPotenciometro, 0, 1023, 100, 1000);
+
+  if (A == LOW) {
+    while (true) {
+      digitalWrite(pinRojo, LOW);
+      digitalWrite(pinAmarillo, LOW);
+      digitalWrite(pinVerde, LOW);
+      delay(velocidadCambio);
+    }
+  } else {
+    if (B == LOW) {
+      while (true) {
+        digitalWrite(pinRojo, LOW);
+        digitalWrite(pinVerde, LOW);
+        digitalWrite(pinAmarillo, HIGH);
+        delay(velocidadCambio);
+        digitalWrite(pinAmarillo, LOW);
+        delay(velocidadCambio);
+      }
+    } else {
+      digitalWrite(pinRojo, HIGH);
+      digitalWrite(pinAmarillo, LOW);
+      digitalWrite(pinVerde, LOW);
+      delay(5000);
+
+      digitalWrite(pinRojo, HIGH);
+      digitalWrite(pinVerde, LOW);
+      digitalWrite(pinAmarillo, HIGH);
+      delay(1000);
+
+      digitalWrite(pinRojo, LOW);
+      digitalWrite(pinAmarillo, LOW);
+      digitalWrite(pinVerde, HIGH);
+      delay(3000);
+
+      digitalWrite(pinRojo, LOW);
+      digitalWrite(pinAmarillo, HIGH);
+      digitalWrite(pinVerde, LOW);
+      delay(1000);
+    }
+  }
+}
